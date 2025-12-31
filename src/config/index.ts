@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 export const config = {
     app: {
         host: process.env.NODE_ENV !== 'production' ? 'localhost' : '0.0.0.0',

@@ -1,5 +1,5 @@
 import { LlmService } from "./llm.service";
-import { buildCommitPrompt } from "../prompts/commit/builder";
+import { buildCommitPrompt } from "../prompts/commit.prompt";
 import {
     GenerateCommitRequestSchema,
     GenerateCommitResponseSchema,

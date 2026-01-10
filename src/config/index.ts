@@ -8,8 +8,15 @@ export const config = {
         env: process.env.NODE_ENV || "development",
     },
     llm: {
-        baseUrl: process.env.AI_BASE_URL || "https://api.deepinfra.com/v1/openai",
-        apiKey: process.env.AI_API_KEY || "",
-        model: process.env.AI_MODEL || "openai/gpt-oss-120b",
+        baseUrl: process.env.LLM_BASE_URL || "https://api.deepinfra.com/v1/openai",
+        apiKey: process.env.LLM_API_KEY || "",
+        model: process.env.LLM_MODEL || "openai/gpt-oss-120b",
+    },
+    redis: {
+        url: process.env.REDIS_URL || "redis://localhost:6379",
+    },
+    rateLimit: {
+        windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 60000,
+        max: Number(process.env.RATE_LIMIT_MAX) || 10,
     },
 };

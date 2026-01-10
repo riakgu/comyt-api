@@ -2,6 +2,7 @@ import express from 'express';
 import type { Request, Response, NextFunction } from "express";
 import commitRoutes from "../routes/commit.route";
 import { errorMiddleware } from "../middleware/error.middleware";
+import { rateLimitMiddleware } from "../middleware/rate-limit.middleware";
 
 export const app = express();
 
@@ -15,6 +16,6 @@ app.get('/health', (req: Request, res: Response) => {
     });
 });
 
-app.use('/api/commits', commitRoutes);
+app.use('/api/commits', rateLimitMiddleware, commitRoutes);
 
 app.use(errorMiddleware);

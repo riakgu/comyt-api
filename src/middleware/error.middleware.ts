@@ -5,12 +5,16 @@ import { config } from "../config";
 
 export const errorMiddleware = async (error: Error, req: Request, res: Response, next: NextFunction) => {
     if (error instanceof ZodError) {
+        const fieldErrors: Record<string, string[]> = {};
+        error.issues.forEach(issue => {
+            const field = issue.path.join('.') || '_root';
+            if (!fieldErrors[field]) {
+                fieldErrors[field] = [];
+            }
+            fieldErrors[field].push(issue.message);
+        });
         res.status(400).json({
-            error: "Validation Error",
-            details: error.issues.map(issue => ({
-                path: issue.path.join('.'),
-                message: issue.message
-            }))
+            errors: fieldErrors
         });
     } else if (error instanceof ResponseError) {
         res.status(error.status).json({

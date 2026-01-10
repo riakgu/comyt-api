@@ -99,8 +99,9 @@ diff --git a/src/index.ts b/src/index.ts
 
         console.log(response.body);
         expect(response.status).toBe(400);
-        expect(response.body.error).toBe("Validation Error");
-        expect(response.body.details).toBeDefined();
+        expect(response.body.errors).toBeDefined();
+        expect(response.body.errors.diff).toBeDefined();
+        expect(Array.isArray(response.body.errors.diff)).toBe(true);
     });
 
     it('should reject if diff is missing', async () => {
@@ -110,8 +111,9 @@ diff --git a/src/index.ts b/src/index.ts
 
         console.log(response.body);
         expect(response.status).toBe(400);
-        expect(response.body.error).toBe("Validation Error");
-        expect(response.body.details).toBeDefined();
+        expect(response.body.errors).toBeDefined();
+        expect(response.body.errors.diff).toBeDefined();
+        expect(Array.isArray(response.body.errors.diff)).toBe(true);
     });
 
 });

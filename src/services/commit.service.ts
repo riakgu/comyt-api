@@ -1,20 +1,23 @@
 import { LlmService } from "./llm.service";
-import { CommitPrompt } from "../prompts/commit.prompt";
 import type { GenerateCommitRequest, GenerateCommitResponse } from "../models/commit.model";
-import { Validation } from "../validations";
-import { CommitValidation } from "../validations/commit.validation";
+import { buildCommitPrompt } from "../prompts/commit/builder";
+import { GenerateCommitRequestSchema, GenerateCommitResponseSchema } from "../schemas/commit.schema";
 
 export class CommitService {
 
     static async generate(request: GenerateCommitRequest): Promise<GenerateCommitResponse> {
-        const generateRequest = Validation.validate(CommitValidation.GENERATE, request);
+        const { diff, options } = GenerateCommitRequestSchema.parse(request);
 
-        const message = await LlmService.chat([
-            { role: "system", content: CommitPrompt.system },
-            { role: "user", content: CommitPrompt.user(generateRequest.diff) },
+        const { system, user } = buildCommitPrompt(diff, options);
+
+        const result = await LlmService.chatJson([
+            { role: "system", content: system },
+            { role: "user", content: user },
         ]);
 
-        return { message };
+        const validated = GenerateCommitResponseSchema.parse(result);
+
+        return validated;
     }
 
 }

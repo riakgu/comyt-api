@@ -1,7 +1,11 @@
 import { LlmService } from "./llm.service";
-import type { GenerateCommitRequest, GenerateCommitResponse } from "../models/commit.model";
 import { buildCommitPrompt } from "../prompts/commit/builder";
-import { GenerateCommitRequestSchema, GenerateCommitResponseSchema } from "../schemas/commit.schema";
+import {
+    GenerateCommitRequestSchema,
+    GenerateCommitResponseSchema,
+    type GenerateCommitRequest,
+    type GenerateCommitResponse
+} from "../schemas/commit.schema";
 
 export class CommitService {
 

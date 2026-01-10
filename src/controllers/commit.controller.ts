@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { CommitService } from "../services/commit.service";
-import type { GenerateCommitRequest } from "../models/commit.model";
+import type { GenerateCommitRequest } from "../schemas/commit.schema";
 
 export class CommitController {
 

@@ -8,6 +8,8 @@ export const CommitOptionsSchema = z.object({
     generate_git_command: z.boolean().optional(),
 });
 
+export type CommitOptions = z.infer<typeof CommitOptionsSchema>;
+
 export const GenerateCommitRequestSchema = z.object({
     diff: z.string().min(1, "Diff is required"),
     options: CommitOptionsSchema.optional(),

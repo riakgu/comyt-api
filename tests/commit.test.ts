@@ -121,4 +121,137 @@ diff --git a/src/index.ts b/src/index.ts
         expect(Array.isArray(response.body.errors.diff)).toBe(true);
     });
 
+    it('should reject invalid diff format', async () => {
+        const response = await supertest(app)
+            .post('/api/commits/generate')
+            .send({
+                diff: "this is not a valid git diff"
+            });
+
+        console.log(response.body);
+        expect(response.status).toBe(400);
+        expect(response.body.errors).toBeDefined();
+        expect(response.body.errors.diff).toBeDefined();
+    });
+
+    it('should accept valid git status context', async () => {
+        const response = await supertest(app)
+            .post('/api/commits/generate')
+            .send({
+                diff: `diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -1 +1,2 @@
+ # Project
++Added description`,
+                context: {
+                    status: `M  README.md
+A  src/index.ts
+?? temp.txt`
+                },
+                options: {
+                    format: "conventional",
+                    commit_strategy: "single"
+                }
+            });
+
+        console.log(response.body);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toBeDefined();
+    }, 30000);
+
+    it('should accept valid git log context', async () => {
+        const response = await supertest(app)
+            .post('/api/commits/generate')
+            .send({
+                diff: `diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -1 +1,2 @@
+ # Project
++Added description`,
+                context: {
+                    log: `abc1234 feat: initial commit
+def5678 docs: add readme
+fab9abc fix: resolve bug`
+                },
+                options: {
+                    format: "conventional",
+                    commit_strategy: "single"
+                }
+            });
+
+        console.log(response.body);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toBeDefined();
+    }, 30000);
+
+    it('should accept context with both status and log', async () => {
+        const response = await supertest(app)
+            .post('/api/commits/generate')
+            .send({
+                diff: `diff --git a/src/utils.ts b/src/utils.ts
+--- a/src/utils.ts
++++ b/src/utils.ts
+@@ -1 +1,3 @@
+ export function helper() {}
++export function format() {}
++export function parse() {}`,
+                context: {
+                    status: `M  src/utils.ts`,
+                    log: `abc1234 refactor: improve helpers
+def5678 feat: add utils module`
+                },
+                options: {
+                    format: "conventional",
+                    commit_strategy: "single"
+                }
+            });
+
+        console.log(response.body);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toBeDefined();
+        expect(response.body.data.mode).toBe("single");
+    }, 30000);
+
+    it('should reject invalid git status format', async () => {
+        const response = await supertest(app)
+            .post('/api/commits/generate')
+            .send({
+                diff: `diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -1 +1,2 @@
+ # Project
++Added description`,
+                context: {
+                    status: "this is not valid git status output"
+                }
+            });
+
+        console.log(response.body);
+        expect(response.status).toBe(400);
+        expect(response.body.errors).toBeDefined();
+    });
+
+    it('should reject invalid git log format', async () => {
+        const response = await supertest(app)
+            .post('/api/commits/generate')
+            .send({
+                diff: `diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -1 +1,2 @@
+ # Project
++Added description`,
+                context: {
+                    log: "invalid log without hash"
+                }
+            });
+
+        console.log(response.body);
+        expect(response.status).toBe(400);
+        expect(response.body.errors).toBeDefined();
+    });
+
 });

@@ -17,7 +17,7 @@ export const CommitContextSchema = z
             .min(1)
             .refine(
                 (val) => {
-                    const lines = val.split("\n").map((l) => l.trimEnd());
+                    const lines = val.split("\n").map((l) => l.trimEnd()).filter((l) => l.length > 0);
                     const statusLineRegex = /^[ MADRCU?!]{1,2}\s+.+$/;
                     return lines.every((line) => statusLineRegex.test(line));
                 },
@@ -33,7 +33,7 @@ export const CommitContextSchema = z
             .min(1)
             .refine(
                 (val) => {
-                    const lines = val.split("\n").map((l) => l.trim());
+                    const lines = val.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
                     const logLineRegex = /^[a-f0-9]{6,40}\s.+$/i;
                     return lines.every((line) => logLineRegex.test(line));
                 },

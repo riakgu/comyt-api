@@ -64,6 +64,18 @@ It supports single and split commit strategies, multiple languages, and optional
    npm start
    ```
 
+### Docker
+
+Run with Docker Compose:
+```sh
+docker compose up -d
+```
+
+Build and run after code changes:
+```sh
+docker compose up -d --build
+```
+
 
 ## API Reference
 

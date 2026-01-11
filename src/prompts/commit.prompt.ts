@@ -1,6 +1,10 @@
-import type { CommitOptions } from "../schemas/commit.schema";
+import type { CommitOptions, CommitContext } from "../schemas/commit.schema";
 
-export function buildCommitPrompt(diff: string, options?: CommitOptions) {
+export function buildCommitPrompt(
+  diff: string,
+  context?: CommitContext,
+  options?: CommitOptions,
+) {
   const system = `
 You are an expert software engineer and Git workflow assistant.
 
@@ -10,7 +14,9 @@ Rules:
 - Do not hallucinate files not present in the diff.
 - Respect options exactly.
 - Follow Conventional Commits when format="conventional".
-- NEVER use "git add .". Always list specific files to add based on the diff.
+- When generate_git_command=true, NEVER use "git add .".
+- Always explicitly list files in git add commands (e.g. "git add src/file.ts README.md").
+- If additional context is provided, use it to improve commit quality, grouping, and wording.
 
 Heuristics:
 - deps only → chore(deps)
@@ -22,7 +28,6 @@ Heuristics:
 
 If commit_strategy="single":
 - Produce exactly one commit.
-- Use "git add <all_changed_files>" (list them individually or space-separated).
 
 If commit_strategy="split":
 - Split changes into logical commits.
@@ -101,14 +106,19 @@ OUTPUT:
 }
 `.trim();
 
-
   const user = `
 ${examples}
 
-Now analyze the following git diff and generate commit output.
+Now analyze the following git changes and generate commit output.
 
 DIFF:
 ${diff}
+
+GIT STATUS --SHORT(if provided):
+${context?.status ?? "N/A"}
+
+GIT LOG --ONELINE (if provided):
+${context?.log ?? "N/A"}
 
 OPTIONS:
 ${JSON.stringify(options, null, 2)}
@@ -124,7 +134,7 @@ If commit_strategy="single":
     "scope": string | null,
     "confidence": number
   },
-  "git_commands": string[] (if generate_git_command=true, NEVER use "git add .")
+  "git_commands": string[] (if generate_git_command=true)
 }
 
 If commit_strategy="split":
@@ -139,7 +149,7 @@ If commit_strategy="split":
         "scope": string | null,
         "confidence": number
       },
-      "git_commands": string[] (if generate_git_command=true, NEVER use "git add .")
+      "git_commands": string[] (if generate_git_command=true)
     }
   ]
 }
@@ -147,6 +157,8 @@ If commit_strategy="split":
 Important:
 - Output JSON only
 - No extra text
+- git_commands must never contain "git add ."
+- Always list files explicitly in git add
 `.trim();
 
   return { system, user };

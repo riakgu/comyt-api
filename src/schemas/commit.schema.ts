@@ -10,6 +10,44 @@ export const CommitOptionsSchema = z.object({
 
 export type CommitOptions = z.infer<typeof CommitOptionsSchema>;
 
+export const CommitContextSchema = z
+    .object({
+        status: z
+            .string()
+            .min(1)
+            .refine(
+                (val) => {
+                    const lines = val.split("\n").map((l) => l.trimEnd());
+                    const statusLineRegex = /^[ MADRCU?!]{1,2}\s+.+$/;
+                    return lines.every((line) => statusLineRegex.test(line));
+                },
+                {
+                    message:
+                        "Invalid git status format. Expected output similar to `git status --short`.",
+                }
+            )
+            .optional(),
+
+        log: z
+            .string()
+            .min(1)
+            .refine(
+                (val) => {
+                    const lines = val.split("\n").map((l) => l.trim());
+                    const logLineRegex = /^[a-f0-9]{6,40}\s.+$/i;
+                    return lines.every((line) => logLineRegex.test(line));
+                },
+                {
+                    message:
+                        "Invalid git log format. Expected output similar to `git log --oneline`.",
+                }
+            )
+            .optional(),
+    })
+    .optional();
+
+export type CommitContext = z.infer<typeof CommitContextSchema>;
+
 export const GenerateCommitRequestSchema = z.object({
     diff: z
         .string()
@@ -28,6 +66,9 @@ export const GenerateCommitRequestSchema = z.object({
                 message: "Invalid git diff format. The input must be a valid git diff output.",
             }
         ),
+
+    context: CommitContextSchema,
+
     options: CommitOptionsSchema.optional(),
 });
 

@@ -10,9 +10,9 @@ import {
 export class CommitService {
 
     static async generate(request: GenerateCommitRequest): Promise<GenerateCommitResponse> {
-        const { diff, options } = GenerateCommitRequestSchema.parse(request);
+        const { diff, context, options } = GenerateCommitRequestSchema.parse(request);
 
-        const { system, user } = buildCommitPrompt(diff, options);
+        const { system, user } = buildCommitPrompt(diff, context, options);
 
         const result = await LlmService.chatJson([
             { role: "system", content: system },

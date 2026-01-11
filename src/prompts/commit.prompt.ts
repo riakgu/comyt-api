@@ -120,6 +120,9 @@ ${context?.status ?? "N/A"}
 GIT LOG --ONELINE (if provided):
 ${context?.log ?? "N/A"}
 
+ADDITIONAL NOTES (if provided):
+${context?.notes ?? "N/A"}
+
 OPTIONS:
 ${JSON.stringify(options, null, 2)}
 

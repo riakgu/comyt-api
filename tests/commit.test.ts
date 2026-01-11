@@ -249,4 +249,28 @@ def5678 feat: add utils module`
         expect(response.body.errors).toBeDefined();
     });
 
+    it('should accept context with notes', async () => {
+        const response = await supertest(app)
+            .post('/api/commits/generate')
+            .send({
+                diff: `diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -1 +1,2 @@
+ # Project
++Added description`,
+                context: {
+                    notes: "This is a breaking change for the API"
+                },
+                options: {
+                    format: "conventional",
+                    commit_strategy: "single"
+                }
+            });
+
+        console.log(response.body);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toBeDefined();
+    }, 30000);
+
 });

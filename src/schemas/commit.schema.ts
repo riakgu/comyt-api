@@ -43,6 +43,10 @@ export const CommitContextSchema = z
                 }
             )
             .optional(),
+
+        notes: z
+            .string()
+            .optional(),
     })
     .optional();
 

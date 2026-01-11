@@ -3,6 +3,10 @@ import { redis } from "../config/redis";
 import { config } from "../config";
 
 export const rateLimitMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    if (config.app.env === 'test') {
+        return next();
+    }
+
     try {
         const ip = req.ip || req.socket.remoteAddress || "unknown";
         const key = `rate_limit:${ip}`;

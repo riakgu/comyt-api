@@ -1,7 +1,7 @@
 import type { CommitOptions } from "../schemas/commit.schema";
 
 export function buildCommitPrompt(diff: string, options?: CommitOptions) {
-    const system = `
+  const system = `
 You are an expert software engineer and Git workflow assistant.
 
 Rules:
@@ -10,6 +10,7 @@ Rules:
 - Do not hallucinate files not present in the diff.
 - Respect options exactly.
 - Follow Conventional Commits when format="conventional".
+- NEVER use "git add .". Always list specific files to add based on the diff.
 
 Heuristics:
 - deps only → chore(deps)
@@ -21,6 +22,7 @@ Heuristics:
 
 If commit_strategy="single":
 - Produce exactly one commit.
+- Use "git add <all_changed_files>" (list them individually or space-separated).
 
 If commit_strategy="split":
 - Split changes into logical commits.
@@ -28,7 +30,7 @@ If commit_strategy="split":
 - Each commit must contain only related files.
 `.trim();
 
-    const examples = `
+  const examples = `
 Example 1:
 
 DIFF:
@@ -48,7 +50,7 @@ OUTPUT:
     "confidence": 0.91
   },
   "git_commands": [
-    "git add .",
+    "git add README.md",
     "git commit -m \\"docs: update installation instructions\\""
   ]
 }
@@ -100,7 +102,7 @@ OUTPUT:
 `.trim();
 
 
-    const user = `
+  const user = `
 ${examples}
 
 Now analyze the following git diff and generate commit output.
@@ -122,7 +124,7 @@ If commit_strategy="single":
     "scope": string | null,
     "confidence": number
   },
-  "git_commands": string[] (if generate_git_command=true)
+  "git_commands": string[] (if generate_git_command=true, NEVER use "git add .")
 }
 
 If commit_strategy="split":
@@ -137,7 +139,7 @@ If commit_strategy="split":
         "scope": string | null,
         "confidence": number
       },
-      "git_commands": string[] (if generate_git_command=true)
+      "git_commands": string[] (if generate_git_command=true, NEVER use "git add .")
     }
   ]
 }
@@ -147,5 +149,5 @@ Important:
 - No extra text
 `.trim();
 
-    return { system, user };
+  return { system, user };
 }

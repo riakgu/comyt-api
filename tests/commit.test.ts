@@ -1,10 +1,5 @@
 import supertest from "supertest";
 import { app } from "../src/config/express";
-import { redis } from "../src/config/redis";
-
-afterAll(async () => {
-    await redis.quit();
-});
 
 describe('POST /api/commits/generate', () => {
 

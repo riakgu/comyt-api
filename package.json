@@ -9,7 +9,7 @@
     "dev": "tsx watch src/web.ts",
     "build": "tsc",
     "start": "node dist/web.js",
-    "test": "jest"
+    "test": "jest --forceExit"
   },
   "jest": {
     "transform": {

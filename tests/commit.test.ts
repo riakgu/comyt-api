@@ -273,4 +273,34 @@ def5678 feat: add utils module`
         expect(response.body.data).toBeDefined();
     }, 30000);
 
+    it('should generate commit with body when include_body is true', async () => {
+        const response = await supertest(app)
+            .post('/api/commits/generate')
+            .send({
+                diff: `diff --git a/src/auth/login.ts b/src/auth/login.ts
+--- a/src/auth/login.ts
++++ b/src/auth/login.ts
+@@ -1,3 +1,10 @@
+ export function login(user: string, pass: string) {
++    if (!user || !pass) {
++        throw new Error('Invalid credentials');
++    }
++    const token = generateToken(user);
++    return { token, expiresIn: 3600 };
+ }`,
+                options: {
+                    format: "conventional",
+                    commit_strategy: "single",
+                    include_body: true
+                }
+            });
+
+        console.log(response.body);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toBeDefined();
+        expect(response.body.data.commit).toBeDefined();
+        expect(response.body.data.commit.body).toBeDefined();
+        expect(typeof response.body.data.commit.body).toBe('string');
+    }, 30000);
+
 });

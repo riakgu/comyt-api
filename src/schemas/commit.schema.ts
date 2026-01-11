@@ -6,6 +6,7 @@ export const CommitOptionsSchema = z.object({
     commit_strategy: z.enum(["single", "split"]).optional(),
     split_strategy: z.enum(["auto", "by_file", "by_type"]).optional(),
     generate_git_command: z.boolean().optional(),
+    include_body: z.boolean().optional(),
 });
 
 export type CommitOptions = z.infer<typeof CommitOptionsSchema>;
@@ -82,6 +83,7 @@ export type GenerateCommitRequest = z.infer<
 
 export const CommitInfoSchema = z.object({
     message: z.string().min(1),
+    body: z.string().min(1).optional(),
     type: z.string().min(1),
     scope: z.string().nullable(),
     confidence: z.number().min(0).max(1),

@@ -8,15 +8,28 @@ export function buildCommitPrompt(
   const system = `
 You are an expert software engineer and Git workflow assistant.
 
-Rules:
+Core rules:
 - Always return valid JSON only.
-- No markdown, no explanations.
-- Do not hallucinate files not present in the diff.
-- Respect options exactly.
+- Do not output markdown or explanations.
+- Do not hallucinate files, behavior, or details not present in the diff or context.
+- Respect the provided options exactly.
 - Follow Conventional Commits when format="conventional".
-- When generate_git_command=true, NEVER use "git add .".
-- Always explicitly list files in git add commands (e.g. "git add src/file.ts README.md").
-- If additional context is provided, use it to improve commit quality, grouping, and wording.
+
+Git command behavior:
+- Prefer explicit file paths in git commands (e.g. "git add src/file.ts").
+- Generated git commands must only include files that belong to the commit.
+- When a commit body is generated and generate_git_command=true, include the body in the git commit command using an additional -m flag.
+
+Use of context:
+- If additional context is provided, use it to improve accuracy and clarity.
+- Do not assume technologies, frameworks, or behavior unless they appear in the diff or context.
+
+Commit body behavior (when include_body=true):
+- The body must only describe what is directly observable from the diff or context.
+- Do not introduce technical details that are not explicitly shown.
+- Prefer paraphrasing the diff rather than interpreting implementation.
+- If the change is ambiguous, keep the body short and high-level.
+- Prefer under-describing over over-describing.
 
 Heuristics:
 - deps only → chore(deps)
@@ -26,13 +39,12 @@ Heuristics:
 - refactor without behavior change → refactor
 - update package-lock.json only → chore(deps)
 
-If commit_strategy="single":
-- Produce exactly one commit.
-
-If commit_strategy="split":
-- Split changes into logical commits.
-- Do not create too many commits unless changes are clearly unrelated.
-- Each commit must contain only related files.
+Commit strategy:
+- If commit_strategy="single": produce exactly one commit.
+- If commit_strategy="split":
+  - Split changes into logical commits.
+  - Avoid creating too many commits unless changes are clearly unrelated.
+  - Each commit must only contain related files.
 `.trim();
 
   const examples = `
@@ -104,6 +116,28 @@ OUTPUT:
     }
   ]
 }
+
+Example 3:
+
+DIFF:
+diff --git a/src/auth/login.ts b/src/auth/login.ts
++ handle expired token
+
+OPTIONS:
+{ "commit_strategy": "single", "format": "conventional", "include_body": true }
+
+OUTPUT:
+{
+  "mode": "single",
+  "commit": {
+    "message": "fix(auth): handle expired token",
+    "body": "Add handling for expired token.",
+    "type": "fix",
+    "scope": "auth",
+    "confidence": 0.88
+  }
+}
+
 `.trim();
 
   const user = `
@@ -133,6 +167,7 @@ If commit_strategy="single":
   "mode": "single",
   "commit": {
     "message": string,
+    "body": string (only if include_body=true),
     "type": string,
     "scope": string | null,
     "confidence": number
@@ -148,6 +183,7 @@ If commit_strategy="split":
       "files": string[],
       "commit": {
         "message": string,
+        "body": string (only if include_body=true),
         "type": string,
         "scope": string | null,
         "confidence": number

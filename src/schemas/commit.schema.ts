@@ -11,7 +11,23 @@ export const CommitOptionsSchema = z.object({
 export type CommitOptions = z.infer<typeof CommitOptionsSchema>;
 
 export const GenerateCommitRequestSchema = z.object({
-    diff: z.string().min(1, "Diff is required"),
+    diff: z
+        .string()
+        .min(1, "Diff is required")
+        .refine(
+            (diff) => {
+                const diffPatterns = [
+                    /^diff --git/m,
+                    /^@@.*@@/m,
+                    /^[\+\-]/m,
+                    /^index [a-f0-9]+/m,
+                ];
+                return diffPatterns.some((pattern) => pattern.test(diff));
+            },
+            {
+                message: "Invalid git diff format. The input must be a valid git diff output.",
+            }
+        ),
     options: CommitOptionsSchema.optional(),
 });
 
